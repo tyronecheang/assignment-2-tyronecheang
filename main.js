@@ -35,6 +35,18 @@ app.get('/signup', (req,res) => {
     res.send(html);
 });
 
+app.get('/login', (req,res) => {
+    var html = `
+    User Login
+        <form action='/loginSubmit' method='post'>
+            <input name='email' type='text' placeholder='email'><br>
+            <input name='password' type='password' placeholder='password'><br>
+        <button>Submit</button>
+        </form>
+    `;
+    res.send(html);
+});
+
 app.post('/signupSubmit', (req,res) => {
     var username = req.body.username;
     var email = req.body.email;
@@ -57,7 +69,7 @@ app.post('/signupSubmit', (req,res) => {
     const usernameValidationResult = usernameSchema.validate({username});
     const emailValidationResult = emailSchema.validate({email});
     const passwordValidationResult = passwordSchema.validate({password});
-    let errorMessage = 'The following fields are required:<ul>';
+    var errorMessage = 'The following fields are required:<ul>';
     if(usernameValidationResult.error != null) {
         errorMessage += '<li>Username</li>';
     }
@@ -72,6 +84,38 @@ app.post('/signupSubmit', (req,res) => {
         return;
     } else {
         errorMessage += '</ul><a href="/signup">Try Again</a>'
+        res.send(errorMessage);
+    }
+});
+
+app.post('/loginSubmit', (req,res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+
+    const emailSchema = Joi.object(
+        {
+            email: Joi.string().email().required()
+        });
+
+    const passwordSchema = Joi.object(
+        {
+            password: Joi.string().required()
+        });
+
+    const emailValidationResult = emailSchema.validate({email});
+    const passwordValidationResult = passwordSchema.validate({password});
+    var errorMessage = 'The following fields are required:<ul>';
+    if(emailValidationResult.error != null) {
+        errorMessage += '<li>Email</li>';
+    }
+    if(passwordValidationResult.error != null) {
+        errorMessage += '<li>Password</li>';
+    }
+    if(usernameValidationResult.error == null && emailValidationResult.error == null && passwordValidationResult.error == null) {
+        res.redirect("/members");
+        return;
+    } else {
+        errorMessage += '</ul><a href="/login">Try Again</a>'
         res.send(errorMessage);
     }
 });
