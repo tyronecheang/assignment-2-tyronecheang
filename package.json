@@ -1,5 +1,25 @@
 {
   "dependencies": {
     "dotenv": "^16.5.0"
-  }
+  },
+  "name": "assignment1-tyronecheang",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tyronecheang/assignment1-tyronecheang.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tyronecheang/assignment1-tyronecheang/issues"
+  },
+  "homepage": "https://github.com/tyronecheang/assignment1-tyronecheang#readme"
 }

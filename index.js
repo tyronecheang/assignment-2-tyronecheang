@@ -150,7 +150,7 @@ app.post('/loginSubmit', async (req, res) => {
 
 	console.log(result);
 	if (result.length != 1) {
-		console.log("user not found");
+		console.log("User Not Found");
 		res.redirect("/login");
 		return;
 	}
@@ -164,7 +164,7 @@ app.post('/loginSubmit', async (req, res) => {
 		res.redirect('/members');
 		return;
 	} else {
-		console.log("incorrect password");
+		console.log("Incorrect Password");
 		res.redirect("/login");
 		return;
 	}
@@ -174,8 +174,11 @@ app.get('/members', (req, res) => {
 	if (!req.session.authenticated) {
 		return res.redirect('/');
 	}
+	const images = ["bear-wave.gif", "poliwrath-wave.gif", "pikachu-wave.gif"];
+	const randomImage = images[Math.floor(Math.random() * images.length)]
 	var html = `
-    hello ${req.session.username}
+    hello ${req.session.username} <br>
+		<img src='/${randomImage}' style='width:250px;'>
         <form action='/logout' method='get'>
             <button type="submit">Sign Out</button>
         </form>
@@ -187,6 +190,8 @@ app.get('/logout', (req, res) => {
 	req.session.destroy();
 	res.redirect('/')
 });
+
+app.use(express.static(__dirname + "/public"));
 
 app.get("*", (req, res) => {
 	res.status(404);
