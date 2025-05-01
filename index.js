@@ -152,14 +152,16 @@ app.post('/loginSubmit', async (req, res) => {
 		_id: 1
 	}).toArray();
 
-	console.log(result);
 	if (result.length != 1) {
-		console.log("User Not Found");
-		res.redirect("/login");
+		var html = `
+			User Not Found.
+			<br><a href='/login'>Try Again</a>
+	`
+	res.send(html);
 		return;
 	}
+	
 	if (await bcrypt.compare(password, result[0].password)) {
-		console.log("Correct Password");
 		req.session.authenticated = true;
 		req.session.email = email;
 		req.session.username = result[0].username;
@@ -168,8 +170,11 @@ app.post('/loginSubmit', async (req, res) => {
 		res.redirect('/members');
 		return;
 	} else {
-		console.log("Incorrect Password");
-		res.redirect("/login");
+		var html = `
+			Invalid Email/Password Combination.
+			<br><a href='/login'>Try Again</a>
+		`
+		res.send(html);
 		return;
 	}
 });
@@ -193,7 +198,7 @@ app.get('/members', (req, res) => {
 
 app.get('/logout', (req, res) => {
 	req.session.destroy();
-	res.redirect('/')
+	res.redirect('/');
 });
 
 app.use(express.static(__dirname + "/public"));
