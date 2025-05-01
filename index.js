@@ -203,7 +203,7 @@ app.get('/logout', (req, res) => {
 
 app.use(express.static(__dirname + "/public"));
 
-app.get("*", (req, res) => {
+app.get("*dummy", (req, res) => {
 	res.status(404);
 	res.send("Page not found - 404");
 })
