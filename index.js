@@ -92,8 +92,8 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/signupSubmit', async (req, res) => {
-	var username = req.body.username;
-	var email = req.body.email;
+	var username = req.body.username.trim();
+	var email = req.body.email.trim().toLowercase();
 	var password = req.body.password;
 
 	const usernameSchema = Joi.object({
