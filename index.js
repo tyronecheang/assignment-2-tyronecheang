@@ -59,7 +59,11 @@ app.get('/', (req, res) => {
         </form>
     </div>
     `;
-	res.send(html);
+	if(req.session.authenticated) {
+		res.redirect("/members");
+	} else {
+		res.send(html);
+	}
 });
 
 app.get('/signup', (req, res) => {
@@ -171,9 +175,6 @@ app.post('/loginSubmit', async (req, res) => {
 });
 
 app.get('/members', (req, res) => {
-	if (!req.session.authenticated) {
-		return res.redirect('/');
-	}
 	const images = ["bear-wave.gif", "poliwrath-wave.gif", "pikachu-wave.gif"];
 	const randomImage = images[Math.floor(Math.random() * images.length)]
 	var html = `
@@ -183,7 +184,11 @@ app.get('/members', (req, res) => {
             <button type="submit">Sign Out</button>
         </form>
     `;
-	res.send(html);
+	if (!req.session.authenticated) {
+		res.redirect('/');
+	} else {
+		res.send(html);
+	}
 });
 
 app.get('/logout', (req, res) => {
