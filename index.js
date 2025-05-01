@@ -75,6 +75,7 @@ app.get('/signup', (req, res) => {
             <input name='password' type='password' placeholder='password'><br>
         <button>Submit</button>
         </form>
+		<a href="/login">Already Have An Account?</a>
     `;
 	res.send(html);
 });
@@ -87,6 +88,7 @@ app.get('/login', (req, res) => {
             <input name='password' type='password' placeholder='password'><br>
         <button>Submit</button>
         </form>
+		<a href="/signup">Don't Have An Account?</a>
     `;
 	res.send(html);
 });
