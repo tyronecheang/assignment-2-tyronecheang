@@ -93,7 +93,7 @@ app.get('/login', (req, res) => {
 
 app.post('/signupSubmit', async (req, res) => {
 	var username = req.body.username.trim();
-	var email = req.body.email.trim().toLowercase();
+	var email = req.body.email.trim().toLowerCase();
 	var password = req.body.password;
 
 	const usernameSchema = Joi.object({
@@ -107,7 +107,7 @@ app.post('/signupSubmit', async (req, res) => {
 	const passwordSchema = Joi.object({
 		password: Joi.string().required()
 	});
-	var errorMessage = 'The following fields are required:<ul>';
+	var errorMessage = 'The Following Fields Are Required:<ul>';
 	if (usernameSchema.validate({username}).error != null) {
 		errorMessage += '<li>Username</li>';
 	}
@@ -122,19 +122,36 @@ app.post('/signupSubmit', async (req, res) => {
         passwordSchema.validate({password}).error == null) {
 		var hashedPassword = await bcrypt.hash(password, saltRounds);
 
-		await userCollection.insertOne({
-			username: username,
-			email: email,
-			password: hashedPassword
-		});
-		req.session.username = username;
-		req.session.email = email;
-        req.session.authenticated = true;
-        req.session.cookie.maxAge = expireTime;
-		res.redirect("/members");
-		return;
+		const result = await userCollection.find({
+			email: email
+		}).project({
+			username: 1,
+			email: 1,
+			password: 1,
+			_id: 1
+		}).toArray();
+
+		if(result.length == 0) {
+			await userCollection.insertOne({
+				username: username,
+				email: email,
+				password: hashedPassword
+			});
+			req.session.username = username;
+			req.session.email = email;
+			req.session.authenticated = true;
+			req.session.cookie.maxAge = expireTime;
+			res.redirect("/members");
+			return;
+		} else if (result.length != 0) {
+			var accountExistsMessage = `
+			The Email "${email}" Has Already Been Taken<br><br>
+			</ul><a href="/signup">Try Again</a>
+			`;
+			res.send(accountExistsMessage);
+		}
 	} else {
-		errorMessage += '</ul><a href="/signup">Try Again</a>'
+		errorMessage += '</ul><a href="/signup">Try Again</a>';
 		res.send(errorMessage);
 	}
 });
@@ -154,8 +171,8 @@ app.post('/loginSubmit', async (req, res) => {
 
 	if (result.length != 1) {
 		var html = `
-			User Not Found.
-			<br><a href='/login'>Try Again</a>
+			User Not Found.<br><br>
+			<a href='/login'>Try Again</a>
 	`
 	res.send(html);
 		return;
@@ -171,8 +188,8 @@ app.post('/loginSubmit', async (req, res) => {
 		return;
 	} else {
 		var html = `
-			Invalid Email/Password Combination.
-			<br><a href='/login'>Try Again</a>
+			Invalid Email/Password Combination.<br><br>
+			<a href='/login'>Try Again</a>
 		`
 		res.send(html);
 		return;
