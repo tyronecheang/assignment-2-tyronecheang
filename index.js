@@ -14,7 +14,7 @@ const app = express();
 
 const Joi = require("joi");
 
-const expireTime = 1 * 60 * 60 * 1000;
+const expireTime = 60 * 60 * 1000;
 
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
