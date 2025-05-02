@@ -60,7 +60,16 @@ app.get('/', (req, res) => {
     </div>
     `;
 	if(req.session.authenticated) {
-		res.redirect("/members");
+		var html = `
+		Hello, ${req.session.username}!<br>
+		<form action='/members' method='get' style="margin: 0;">
+            <button>Go to Members Area</button>
+        </form>
+		<form action='/logout' method='get'>
+            <button>Sign Out</button>
+        </form>
+		`;
+		res.send(html);
 	} else {
 		res.send(html);
 	}
@@ -86,7 +95,7 @@ app.get('/login', (req, res) => {
         <form action='/loginSubmit' method='post'>
             <input name='email' type='text' placeholder='email'><br>
             <input name='password' type='password' placeholder='password'><br>
-        <button>Submit</button>
+        	<button>Submit</button>
         </form>
 		<a href="/signup">Don't Have An Account?</a>
     `;
@@ -143,7 +152,7 @@ app.post('/signupSubmit', async (req, res) => {
 			req.session.email = email;
 			req.session.authenticated = true;
 			req.session.cookie.maxAge = expireTime;
-			res.redirect("/members");
+			res.redirect("/");
 			return;
 		} else if (result.length != 0) {
 			var accountExistsMessage = `
@@ -186,7 +195,7 @@ app.post('/loginSubmit', async (req, res) => {
 		req.session.username = result[0].username;
 		req.session.cookie.maxAge = expireTime;
 
-		res.redirect('/members');
+		res.redirect('/');
 		return;
 	} else {
 		var html = `
@@ -202,10 +211,10 @@ app.get('/members', (req, res) => {
 	const images = ["bear-wave.gif", "poliwrath-wave.gif", "pikachu-wave.gif"];
 	const randomImage = images[Math.floor(Math.random() * images.length)]
 	var html = `
-    hello ${req.session.username} <br>
+    <h1>Hello, ${req.session.username}.</h1><br>
 		<img src='/${randomImage}' style='width:250px;'>
         <form action='/logout' method='get'>
-            <button type="submit">Sign Out</button>
+            <button>Sign Out</button>
         </form>
     `;
 	if (!req.session.authenticated) {
