@@ -152,7 +152,7 @@ app.post('/signupSubmit', async (req, res) => {
 			req.session.email = email;
 			req.session.authenticated = true;
 			req.session.cookie.maxAge = expireTime;
-			res.redirect("/");
+			res.redirect("/members");
 			return;
 		} else if (result.length != 0) {
 			var accountExistsMessage = `
