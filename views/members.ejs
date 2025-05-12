@@ -1,0 +1,11 @@
+<%- include("templates/header", {
+    title: "Members"
+}) %>
+
+    <h1>Hello, <%= username %>.</h1><br>
+		<img src='<%= image %>' style='width:250px;'>
+        <form action='/logout' method='get'>
+            <button>Sign Out</button>
+        </form>
+
+<% include("templates/footer") %>

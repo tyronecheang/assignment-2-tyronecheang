@@ -1,0 +1,17 @@
+<%- include("templates/header", {
+    title: "Sign Up Error"
+}) %>
+
+    The Following Fields Are Required:<ul>
+        <% if(usernameError) { %>
+            <li>Username</li>
+        <% } %>
+        <% if(emailError) { %>
+            <li>Email</li>
+        <% } %>
+        <% if(passwordError) { %>
+            <li>Password</li>
+        <% } %>
+    </ul><a href="/signup">Try Again</a>
+
+<% include("templates/footer") %>

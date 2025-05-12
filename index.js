@@ -1,4 +1,4 @@
-require("./utils.js");
+require("./public/js/utils.js");
 
 require('dotenv').config();
 
@@ -23,6 +23,9 @@ const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
 const node_session_secret = process.env.NODE_SESSION_SECRET;
+
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
 
 var {
 	database
@@ -49,57 +52,18 @@ app.use(session({
 }));
 
 app.get('/', (req, res) => {
-	var html = `
-    <div style="display: flex; flex-direction: column;">
-        <form action='/signup' method='get' style="margin: 0;">
-            <button>Sign up</button>
-        </form>
-        <form action='/login' method='get' style="margin: 0;">
-            <button>Log in</button>
-        </form>
-    </div>
-    `;
-	if(req.session.authenticated) {
-		var html = `
-		Hello, ${req.session.username}!<br>
-		<form action='/members' method='get' style="margin: 0;">
-            <button>Go to Members Area</button>
-        </form>
-		<form action='/logout' method='get'>
-            <button>Sign Out</button>
-        </form>
-		`;
-		res.send(html);
-	} else {
-		res.send(html);
-	}
+	res.render("landing", {
+		authenticated: req.session.authenticated,
+		username: req.session.username
+	});
 });
 
 app.get('/signup', (req, res) => {
-	var html = `
-    User Sign-Up:
-        <form action='/signupSubmit' method='post'>
-            <input name='username' type='text' placeholder='username'><br>
-            <input name='email' type='text' placeholder='email'><br>
-            <input name='password' type='password' placeholder='password'><br>
-        <button>Submit</button>
-        </form>
-		<a href="/login">Already Have An Account?</a>
-    `;
-	res.send(html);
+	res.render("sign-up");
 });
 
 app.get('/login', (req, res) => {
-	var html = `
-    User Login
-        <form action='/loginSubmit' method='post'>
-            <input name='email' type='text' placeholder='email'><br>
-            <input name='password' type='password' placeholder='password'><br>
-        	<button>Submit</button>
-        </form>
-		<a href="/signup">Don't Have An Account?</a>
-    `;
-	res.send(html);
+	res.render("login");
 });
 
 app.post('/signupSubmit', async (req, res) => {
@@ -118,19 +82,18 @@ app.post('/signupSubmit', async (req, res) => {
 	const passwordSchema = Joi.object({
 		password: Joi.string().required()
 	});
-	var errorMessage = 'The Following Fields Are Required:<ul>';
-	if (usernameSchema.validate({username}).error != null) {
-		errorMessage += '<li>Username</li>';
-	}
-	if (emailSchema.validate({email}).error != null) {
-		errorMessage += '<li>Email</li>';
-	}
-	if (passwordSchema.validate({password}).error != null) {
-		errorMessage += '<li>Password</li>';
-	}
-	if (usernameSchema.validate({username}).error == null &&
-        emailSchema.validate({email}).error == null &&
-        passwordSchema.validate({password}).error == null) {
+
+	var usernameError = usernameSchema.validate({username}).error;
+	var emailError = emailSchema.validate({email}).error;
+	var passwordError = passwordSchema.validate({password}).error;
+
+	if(usernameError || emailError || passwordError) {
+		res.render("sign-up-error", {
+			usernameError: usernameError,
+			emailError: emailError,
+			passwordError: passwordError
+		});
+	} else {
 		var hashedPassword = await bcrypt.hash(password, saltRounds);
 
 		const result = await userCollection.find({
@@ -154,16 +117,9 @@ app.post('/signupSubmit', async (req, res) => {
 			req.session.cookie.maxAge = expireTime;
 			res.redirect("/members");
 			return;
-		} else if (result.length != 0) {
-			var accountExistsMessage = `
-			The Email "${email}" Has Already Been Taken<br><br>
-			</ul><a href="/signup">Try Again</a>
-			`;
-			res.send(accountExistsMessage);
+		} else {
+			res.render("account-exists", {email: email});
 		}
-	} else {
-		errorMessage += '</ul><a href="/signup">Try Again</a>';
-		res.send(errorMessage);
 	}
 });
 
@@ -181,11 +137,7 @@ app.post('/loginSubmit', async (req, res) => {
 	}).toArray();
 
 	if (result.length != 1) {
-		var html = `
-			User Not Found.<br><br>
-			<a href='/login'>Try Again</a>
-	`
-	res.send(html);
+		res.render("user-not-found");
 		return;
 	}
 	
@@ -198,11 +150,7 @@ app.post('/loginSubmit', async (req, res) => {
 		res.redirect('/');
 		return;
 	} else {
-		var html = `
-			Invalid Email/Password Combination.<br><br>
-			<a href='/login'>Try Again</a>
-		`
-		res.send(html);
+		res.render("invalid-login");
 		return;
 	}
 });
@@ -210,17 +158,10 @@ app.post('/loginSubmit', async (req, res) => {
 app.get('/members', (req, res) => {
 	const images = ["bear-wave.gif", "poliwrath-wave.gif", "pikachu-wave.gif"];
 	const randomImage = images[Math.floor(Math.random() * images.length)]
-	var html = `
-    <h1>Hello, ${req.session.username}.</h1><br>
-		<img src='/${randomImage}' style='width:250px;'>
-        <form action='/logout' method='get'>
-            <button>Sign Out</button>
-        </form>
-    `;
 	if (!req.session.authenticated) {
 		res.redirect('/');
 	} else {
-		res.send(html);
+		res.render("Members", {username: req.session.username, image: randomImage});
 	}
 });
 
@@ -233,7 +174,7 @@ app.use(express.static(__dirname + "/public"));
 
 app.get("*dummy", (req, res) => {
 	res.status(404);
-	res.send("Page not found - 404");
+	res.render("404");
 })
 
 app.listen(port, () => {

@@ -1,0 +1,25 @@
+<%- include("templates/header", {
+    title: "Landing"
+}) %>
+
+    <% if(authenticated) { %>
+        Hello, <%= username %>!<br>
+		<form action='/members' method='get' style="margin: 0;">
+            <button>Go to Members Area</button>
+        </form>
+		<form action='/logout' method='get'>
+            <button>Sign Out</button>
+        </form>
+        <% } else { %>
+        <div style="display: flex; flex-direction: column;">
+            <form action='/signup' method='get' style="margin: 0;">
+                <button>Sign up</button>
+            </form>
+            <form action='/login' method='get' style="margin: 0;">
+                <button>Log in</button>
+            </form>
+        </div>
+    <% } %>
+
+<% include("templates/footer") %>
+    

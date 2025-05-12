@@ -1,0 +1,14 @@
+<%- include("templates/header", {
+    title: "Sign Up"
+}) %>
+
+    User Sign-Up:
+        <form action='/signupSubmit' method='post'>
+            <input name='username' type='text' placeholder='username'><br>
+            <input name='email' type='text' placeholder='email'><br>
+            <input name='password' type='password' placeholder='password'><br>
+            <button>Submit</button>
+        </form>
+		<a href="/login">Already Have An Account?</a>
+
+<%- include("templates/footer") %>
