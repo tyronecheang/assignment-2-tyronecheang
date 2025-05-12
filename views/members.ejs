@@ -3,19 +3,18 @@
 }) %>
 
 <div class="container text-center">
-    <h1>Hello, <%= username %>.</h1><br>
-    
-    <div class="row">
-        <% images.forEach(function(image) { %>
-            <div class="col-sm-4 mb-4">
-                <img src="<%= image %>" class="img-fluid" style="width: 350px; height: 300px" alt="<%= image %>">
-            </div>
-        <% }); %>
-    </div>
-
-    <form action='/logout' method='get'>
-        <button type="submit" class="btn btn-danger">Sign Out</button>
-    </form>
+   <h1>Hello, <%= username %>.</h1>
+   <br>
+   <div class="row">
+      <% images.forEach(function(image) { %>
+      <div class="col-sm-4 mb-4">
+         <img src="<%= image %>" class="img-fluid" style="width: 350px; height: 300px" alt="<%= image %>">
+      </div>
+      <% }); %>
+   </div>
+   <form action='/logout' method='get'>
+      <button type="submit" class="btn btn-danger">Sign Out</button>
+   </form>
 </div>
 
 <%- include("templates/footer") %>

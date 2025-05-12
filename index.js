@@ -59,10 +59,16 @@ app.get('/', (req, res) => {
 });
 
 app.get('/signup', (req, res) => {
+	if(req.session.authenticated) {
+		return res.redirect("/members");
+	}
 	res.render("sign-up");
 });
 
 app.get('/login', (req, res) => {
+	if(req.session.authenticated) {
+		return res.redirect("/members");
+	}
 	res.render("login");
 });
 

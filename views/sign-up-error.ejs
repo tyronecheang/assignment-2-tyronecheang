@@ -3,23 +3,23 @@
 }) %>
 
 <div class="container">
-    <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">Error: Required Fields Missing</h4>
-        <p>The following fields are required:</p>
-        <ul>
-            <% if(usernameError) { %>
-                <li>Username</li>
-            <% } %>
-            <% if(emailError) { %>
-                <li>Email</li>
-            <% } %>
-            <% if(passwordError) { %>
-                <li>Password</li>
-            <% } %>
-        </ul>
-        <hr>
-        <a href="/signup" class="btn btn-danger">Try Again</a>
-    </div>
+   <div class="alert alert-danger" role="alert">
+      <h4 class="alert-heading">Error: Required Fields Missing</h4>
+      <p>The following fields are required:</p>
+      <ul>
+         <% if(usernameError) { %>
+         <li>Username</li>
+         <% } %>
+         <% if(emailError) { %>
+         <li>Email</li>
+         <% } %>
+         <% if(passwordError) { %>
+         <li>Password</li>
+         <% } %>
+      </ul>
+      <hr>
+      <a href="/signup" class="btn btn-danger">Try Again</a>
+   </div>
 </div>
 
 <%- include("templates/footer") %>
