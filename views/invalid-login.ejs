@@ -2,7 +2,11 @@
     title: "Invalid Login"
 }) %>
 
-	Invalid Email/Password Combination.<br><br>
-	<a href='/login'>Try Again</a>
+<div class="container mt-5 text-center">
+    <div class="alert alert-danger" role="alert">
+        Invalid Email/Password Combination.
+    </div>
+    <a href='/login' class="btn btn-primary">Try Again</a>
+</div>
 
-<% include("templates/footer") %>
+<%- include("templates/footer") %>

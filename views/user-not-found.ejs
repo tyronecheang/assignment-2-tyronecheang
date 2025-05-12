@@ -2,7 +2,13 @@
     title: "User Not Found"
 }) %>
 
-	User Not Found.<br><br>
-	<a href='/login'>Try Again</a>
+<div class="container text-center mt-5">
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">User Not Found</h4>
+        <p>The user you are looking for does not exist. Please check your details or try again.</p>
+        <hr>
+        <a href="/login" class="btn btn-primary">Try Again</a>
+    </div>
+</div>
 
-<% include("templates/footer") %>
+<%- include("templates/footer") %>

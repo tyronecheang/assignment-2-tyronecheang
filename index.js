@@ -83,11 +83,11 @@ app.post('/signupSubmit', async (req, res) => {
 		password: Joi.string().required()
 	});
 
-	var usernameError = usernameSchema.validate({username}).error;
-	var emailError = emailSchema.validate({email}).error;
-	var passwordError = passwordSchema.validate({password}).error;
+	var usernameError = usernameSchema.validate({ username }).error;
+	var emailError = emailSchema.validate({ email }).error;
+	var passwordError = passwordSchema.validate({ password }).error;
 
-	if(usernameError || emailError || passwordError) {
+	if (usernameError || emailError || passwordError) {
 		res.render("sign-up-error", {
 			usernameError: usernameError,
 			emailError: emailError,
@@ -105,11 +105,12 @@ app.post('/signupSubmit', async (req, res) => {
 			_id: 1
 		}).toArray();
 
-		if(result.length == 0) {
+		if (result.length == 0) {
 			await userCollection.insertOne({
 				username: username,
 				email: email,
-				password: hashedPassword
+				password: hashedPassword,
+				type: "user"
 			});
 			req.session.username = username;
 			req.session.email = email;
@@ -118,7 +119,7 @@ app.post('/signupSubmit', async (req, res) => {
 			res.redirect("/members");
 			return;
 		} else {
-			res.render("account-exists", {email: email});
+			res.render("account-exists", { email: email });
 		}
 	}
 });
@@ -140,7 +141,7 @@ app.post('/loginSubmit', async (req, res) => {
 		res.render("user-not-found");
 		return;
 	}
-	
+
 	if (await bcrypt.compare(password, result[0].password)) {
 		req.session.authenticated = true;
 		req.session.email = email;
@@ -157,13 +158,86 @@ app.post('/loginSubmit', async (req, res) => {
 
 app.get('/members', (req, res) => {
 	const images = ["bear-wave.gif", "poliwrath-wave.gif", "pikachu-wave.gif"];
-	const randomImage = images[Math.floor(Math.random() * images.length)]
 	if (!req.session.authenticated) {
 		res.redirect('/');
 	} else {
-		res.render("Members", {username: req.session.username, image: randomImage});
+		res.render("Members", {
+			username: req.session.username,
+			images: images
+		});
 	}
 });
+
+
+app.get('/admin', async (req, res) => {
+	if (!req.session.authenticated) {
+		res.redirect('/login');
+		return;
+	}
+
+	const currentUser = await userCollection.findOne({ email: req.session.email });
+
+	if (!currentUser || currentUser.type !== "admin") {
+		res.status(403);
+		res.render("403");
+		return;
+	}
+
+	const users = await userCollection.find({}).toArray();
+
+	res.render("admin", {
+		users: users,
+		currentEmail: req.session.email
+	});
+});
+
+app.post('/promote', async (req, res) => {
+	if (!req.session.authenticated) {
+		res.redirect('/login');
+		return;
+	}
+
+	const currentUser = await userCollection.findOne({ email: req.session.email });
+
+	if (!currentUser || currentUser.type !== "admin") {
+		res.status(403);
+		res.send("403 Forbidden");
+		return;
+	}
+
+	const { email } = req.body;
+
+	await userCollection.updateOne({ email: email }, { $set: { type: "admin" } });
+	res.redirect('/admin');
+});
+
+
+app.post('/demote', async (req, res) => {
+	if (!req.session.authenticated) {
+		res.redirect('/login');
+		return;
+	}
+
+	const currentUser = await userCollection.findOne({ email: req.session.email });
+
+	if (!currentUser || currentUser.type !== "admin") {
+		res.status(403);
+		res.send("403 Forbidden");
+		return;
+	}
+
+	const { email } = req.body;
+
+	if (req.session.email === email) {
+		res.send("You cannot demote yourself.");
+		return;
+	}
+
+	await userCollection.updateOne({ email: email }, { $set: { type: "user" } });
+	res.redirect('/admin');
+});
+
+
 
 app.get('/logout', (req, res) => {
 	req.session.destroy();
