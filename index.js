@@ -51,6 +51,29 @@ app.use(session({
 	resave: true
 }));
 
+function isAuthenticated(req, res, next) {
+	if (req.session && req.session.authenticated) {
+		next();
+	} else {
+		res.redirect('/login');
+	}
+}
+
+async function isAdmin(req, res, next) {
+	if (!req.session || !req.session.authenticated) {
+		return res.redirect('/login');
+	}
+
+	const currentUser = await userCollection.findOne({ email: req.session.email });
+
+	if (!currentUser || currentUser.type !== "admin") {
+		res.status(403);
+		return res.render("403");
+	}
+
+	next();
+}
+
 app.get('/', (req, res) => {
 	res.render("landing", {
 		authenticated: req.session.authenticated,
@@ -162,76 +185,29 @@ app.post('/loginSubmit', async (req, res) => {
 	}
 });
 
-app.get('/members', (req, res) => {
+app.get('/members', isAuthenticated, (req, res) => {
 	const images = ["bear-wave.gif", "poliwrath-wave.gif", "pikachu-wave.gif"];
-	if (!req.session.authenticated) {
-		res.redirect('/');
-	} else {
-		res.render("members", {
-			username: req.session.username,
-			images: images
-		});
-	}
+	res.render("members", {
+		username: req.session.username,
+		images: images
+	});
 });
 
-
-app.get('/admin', async (req, res) => {
-	if (!req.session.authenticated) {
-		res.redirect('/login');
-		return;
-	}
-
-	const currentUser = await userCollection.findOne({ email: req.session.email });
-
-	if (!currentUser || currentUser.type !== "admin") {
-		res.status(403);
-		res.render("403");
-		return;
-	}
-
+app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
 	const users = await userCollection.find({}).toArray();
-
 	res.render("admin", {
 		users: users,
 		currentEmail: req.session.email
 	});
 });
 
-app.post('/promote', async (req, res) => {
-	if (!req.session.authenticated) {
-		res.redirect('/login');
-		return;
-	}
-
-	const currentUser = await userCollection.findOne({ email: req.session.email });
-
-	if (!currentUser || currentUser.type !== "admin") {
-		res.status(403);
-		res.send("403 Forbidden");
-		return;
-	}
-
+app.post('/promote', isAuthenticated, isAdmin, async (req, res) => {
 	const { email } = req.body;
-
 	await userCollection.updateOne({ email: email }, { $set: { type: "admin" } });
 	res.redirect('/admin');
 });
 
-
-app.post('/demote', async (req, res) => {
-	if (!req.session.authenticated) {
-		res.redirect('/login');
-		return;
-	}
-
-	const currentUser = await userCollection.findOne({ email: req.session.email });
-
-	if (!currentUser || currentUser.type !== "admin") {
-		res.status(403);
-		res.send("403 Forbidden");
-		return;
-	}
-
+app.post('/demote', isAuthenticated, isAdmin, async (req, res) => {
 	const { email } = req.body;
 
 	if (req.session.email === email) {
@@ -242,8 +218,6 @@ app.post('/demote', async (req, res) => {
 	await userCollection.updateOne({ email: email }, { $set: { type: "user" } });
 	res.redirect('/admin');
 });
-
-
 
 app.get('/logout', (req, res) => {
 	req.session.destroy();
