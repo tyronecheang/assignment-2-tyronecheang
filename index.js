@@ -167,7 +167,7 @@ app.get('/members', (req, res) => {
 	if (!req.session.authenticated) {
 		res.redirect('/');
 	} else {
-		res.render("Members", {
+		res.render("members", {
 			username: req.session.username,
 			images: images
 		});
