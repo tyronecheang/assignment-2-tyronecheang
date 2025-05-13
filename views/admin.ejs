@@ -1,0 +1,25 @@
+<%- include("templates/header", {
+	title: "Admin" 
+}) %>
+
+<div class="container mt-5">
+   <h1 class="mb-4 text-center text-primary">Admin Menu</h1>
+   <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+         <thead class="table-dark">
+            <tr>
+               <th>Username</th>
+               <th>Email</th>
+               <th>Type</th>
+               <th>Action</th>
+            </tr>
+         </thead>
+         <tbody>
+            <%- include("templates/user") %>
+         </tbody>
+      </table>
+   </div>
+   <a href="/" class="btn btn-primary mt-3">Back to Home</a>
+</div>
+
+	<%- include("templates/footer") %>
