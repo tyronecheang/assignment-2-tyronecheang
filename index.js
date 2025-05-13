@@ -195,7 +195,7 @@ app.get('/members', isAuthenticated, (req, res) => {
 
 app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
 	const users = await userCollection.find({}).toArray();
-	res.render("admin", {
+	res.render("user", {
 		users: users,
 		currentEmail: req.session.email
 	});
